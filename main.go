@@ -62,10 +62,11 @@ func main() {
 	acc := router.Group("/account")
 	acc.POST("/", accountAPI.Create)
 
-	authAcc := router.Group("/account")
-	authAcc.GET("/", accountAPI.FindAll)
+	//authAcc := router.Group("/account")
+	//authAcc.Use(AuthRequired())
+	//authAcc.GET("/", accountAPI.FindAll)
 
-	err := router.Run("localhost:"+os.Getenv("SVC_PORT"))
+	err := router.Run(":"+os.Getenv("SVC_PORT"))
 	if err != nil {
 		panic(err)
 	}

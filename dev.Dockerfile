@@ -22,6 +22,4 @@ COPY --from=builder /api/wait-for-it.sh .
 COPY --from=builder /api/account_service .
 RUN chmod 755 wait-for-it.sh
 
-EXPOSE $SVC_PORT
-
 CMD ["/app/wait-for-it.sh", "--", "/app/account_service"]
