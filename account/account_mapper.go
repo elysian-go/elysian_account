@@ -1,11 +1,11 @@
 package account
 
 func ToAccount(accountDTO AccountDTO) Account {
-	return Account{Code: accountDTO.Code, Price: accountDTO.Price}
+	return Account{}
 }
 
 func ToAccountDTO(account Account) AccountDTO {
-	return AccountDTO{ID: account.ID, Code: account.Code, Price: account.Price}
+	return AccountDTO{}
 }
 
 func ToAccountDTOs(accounts []Account) []AccountDTO {

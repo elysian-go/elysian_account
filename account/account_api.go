@@ -43,24 +43,24 @@ func (p *AccountAPI) Create(c *gin.Context) {
 }
 
 func (p *AccountAPI) Update(c *gin.Context) {
-	var accountDTO AccountDTO
-	err := c.BindJSON(&accountDTO)
-	if err != nil {
-		log.Fatalln(err)
-		c.Status(http.StatusBadRequest)
-		return
-	}
-
-	id, _ :=  strconv.Atoi(c.Param("id"))
-	account := p.AccountService.FindByID(uint(id))
-	if account == (Account{}) {
-		c.Status(http.StatusBadRequest)
-		return
-	}
-
-	account.Code = accountDTO.Code
-	account.Price = accountDTO.Price
-	p.AccountService.Save(account)
+	//var accountDTO AccountDTO
+	//err := c.BindJSON(&accountDTO)
+	//if err != nil {
+	//	log.Fatalln(err)
+	//	c.Status(http.StatusBadRequest)
+	//	return
+	//}
+	//
+	//id, _ :=  strconv.Atoi(c.Param("id"))
+	//account := p.AccountService.FindByID(uint(id))
+	//if account == (Account{}) {
+	//	c.Status(http.StatusBadRequest)
+	//	return
+	//}
+	//
+	//account.Code = accountDTO.Code
+	//account.Price = accountDTO.Price
+	//p.AccountService.Save(account)
 
 	c.Status(http.StatusOK)
 }
