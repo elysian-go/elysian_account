@@ -1,5 +1,9 @@
 package account
 
+import (
+	"errors"
+)
+
 type AccountService struct {
 	AccountRepository AccountRepository
 }
@@ -16,10 +20,12 @@ func (p *AccountService) FindByID(id uint) Account {
 	return p.AccountRepository.FindByID(id)
 }
 
-func (p *AccountService) Save(account Account) Account {
-	p.AccountRepository.Save(account)
-
-	return account
+func (p *AccountService) Save(account Account) (Account, error) {
+	account, err := p.AccountRepository.Save(account)
+	if err != nil {
+		return account, errors.New("duplicate entry on email")
+	}
+	return account, nil
 }
 
 func (p *AccountService) Delete(account Account) {

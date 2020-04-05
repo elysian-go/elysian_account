@@ -2,6 +2,7 @@ package account
 
 import (
 	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 	"log"
 	"net/http"
 	"strconv"
@@ -18,33 +19,43 @@ func ProvideAccountAPI(p AccountService) AccountAPI {
 func (p *AccountAPI) FindAll(c *gin.Context) {
 	accounts := p.AccountService.FindAll()
 
-	c.JSON(http.StatusOK, gin.H{"accounts": ToAccountDTOs(accounts)})
+	c.JSON(http.StatusOK, gin.H{"accounts": ToAccountModels(accounts)})
 }
 
 func (p *AccountAPI) FindByID(c *gin.Context) {
 	id, _ :=  strconv.Atoi(c.Param("id"))
 	account := p.AccountService.FindByID(uint(id))
 
-	c.JSON(http.StatusOK, gin.H{"account": ToAccountDTO(account)})
+	c.JSON(http.StatusOK, gin.H{"account": ToAccountModel(account)})
 }
 
 func (p *AccountAPI) Create(c *gin.Context) {
-	var accountDTO AccountDTO
-	err := c.BindJSON(&accountDTO)
+	var accountModel AccountModel
+	err := c.BindJSON(&accountModel)
 	if err != nil {
-		log.Fatalln(err)
-		c.Status(http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	createdAccount := p.AccountService.Save(ToAccount(accountDTO))
+	password := accountModel.Password
+	byteHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.MinCost) //return []byte
+	if err != nil {
+		log.Println(err)
+		c.JSON(http.StatusInternalServerError, nil)
+	}
+	accountModel.Password = string(byteHash)
 
-	c.JSON(http.StatusOK, gin.H{"account": ToAccountDTO(createdAccount)})
+	_, err = p.AccountService.Save(ToAccount(accountModel))
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
+		return
+	}
+	c.Redirect(http.StatusMovedPermanently, "/login")
 }
 
 func (p *AccountAPI) Update(c *gin.Context) {
-	//var accountDTO AccountDTO
-	//err := c.BindJSON(&accountDTO)
+	//var accountModel AccountModel
+	//err := c.BindJSON(&accountModel)
 	//if err != nil {
 	//	log.Fatalln(err)
 	//	c.Status(http.StatusBadRequest)
@@ -58,8 +69,8 @@ func (p *AccountAPI) Update(c *gin.Context) {
 	//	return
 	//}
 	//
-	//account.Code = accountDTO.Code
-	//account.Price = accountDTO.Price
+	//account.Code = accountModel.Code
+	//account.Price = accountModel.Price
 	//p.AccountService.Save(account)
 
 	c.Status(http.StatusOK)

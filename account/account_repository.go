@@ -1,8 +1,8 @@
 package account
 
 import (
-"github.com/jinzhu/gorm"
-_ "github.com/jinzhu/gorm/dialects/mysql"
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
 type AccountRepository struct {
@@ -27,13 +27,24 @@ func (p *AccountRepository) FindByID(id uint) Account {
 	return account
 }
 
-func (p *AccountRepository) Save(account Account) Account {
-	p.DB.Save(&account)
+func (p *AccountRepository) FindByEmail(email string) (Account, error) {
+	var account Account
+	err := p.DB.First(&account, "email = ?", email).Error
+	if err != nil {
+		return account, err
+	}
 
-	return account
+	return account, nil
+}
+
+func (p *AccountRepository) Save(account Account) (Account, error) {
+	err := p.DB.Save(&account).Error
+	if err != nil {
+		return Account{}, err
+	}
+	return account, nil
 }
 
 func (p *AccountRepository) Delete(account Account) {
 	p.DB.Delete(&account)
 }
-
