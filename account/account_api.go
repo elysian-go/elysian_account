@@ -56,9 +56,9 @@ func (p *AccountAPI) Create(c *gin.Context) {
 	userPath := location.Get(c).Host+"/api/v1/auth/login"
 	c.Writer.Header().Set("Location", userPath)
 
-	createdAccount := gin.H{"account": ToAccountModel(account)}
-	delete(createdAccount, )
-	c.JSON(http.StatusOK, gin.H{"account": acc})
+	ac := ToAccountModel(account)
+	ac.Password = ""
+	c.JSON(http.StatusOK, gin.H{"account": ac})
 }
 
 func (p *AccountAPI) Update(c *gin.Context) {
