@@ -1,6 +1,6 @@
 package account
 
-func ToAccount(accountModel AccountModel) Account {
+func ToAccount(accountModel Model) Account {
 	return Account{
 		Email: accountModel.Email,
 		Password: accountModel.Password,
@@ -12,8 +12,8 @@ func ToAccount(accountModel AccountModel) Account {
 	}
 }
 
-func ToAccountModel(account Account) AccountModel {
-	return AccountModel{
+func ToAccountModel(account Account) Model {
+	return Model{
 		ID: account.ID,
 		Email: account.Email,
 		Password: account.Password,
@@ -27,8 +27,8 @@ func ToAccountModel(account Account) AccountModel {
 	}
 }
 
-func ToAccountModels(accounts []Account) []AccountModel {
-	accountModels := make([]AccountModel, len(accounts))
+func ToAccountModels(accounts []Account) []Model {
+	accountModels := make([]Model, len(accounts))
 
 	for i, itm := range accounts {
 		accountModels[i] = ToAccountModel(itm)

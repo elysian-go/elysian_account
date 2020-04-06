@@ -17,7 +17,7 @@ func ProvideAuthAPI(p AuthService) AuthAPI {
 }
 
 func (p *AuthAPI) Login(c *gin.Context) {
-	var authModel AuthModel
+	var authModel Model
 	err := c.BindJSON(&authModel)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

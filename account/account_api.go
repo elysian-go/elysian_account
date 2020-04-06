@@ -34,7 +34,7 @@ func (p *AccountAPI) FindByID(c *gin.Context) {
 }
 
 func (p *AccountAPI) Create(c *gin.Context) {
-	var accountModel AccountModel
+	var accountModel Model
 	err := c.BindJSON(&accountModel)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

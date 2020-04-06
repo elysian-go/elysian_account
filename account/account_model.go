@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-type AccountModel struct {
+type Model struct {
 	ID				string			`json:"id,string"`
 	Email			string			`json:"email" binding:"required,email"`
 	// ",omitempty" enables to strip password when returning struct
