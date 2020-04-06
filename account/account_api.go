@@ -1,6 +1,7 @@
 package account
 
 import (
+	"github.com/gin-contrib/location"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 	"log"
@@ -45,12 +46,19 @@ func (p *AccountAPI) Create(c *gin.Context) {
 	}
 	accountModel.Password = string(byteHash)
 
-	_, err = p.AccountService.Save(ToAccount(accountModel))
+	account, err := p.AccountService.Save(ToAccount(accountModel))
 	if err != nil {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 		return
 	}
-	c.Redirect(http.StatusMovedPermanently, "/login")
+
+	// Todo find better way to do this
+	userPath := location.Get(c).Host+"/api/v1/auth/login"
+	c.Writer.Header().Set("Location", userPath)
+
+	createdAccount := gin.H{"account": ToAccountModel(account)}
+	delete(createdAccount, )
+	c.JSON(http.StatusOK, gin.H{"account": acc})
 }
 
 func (p *AccountAPI) Update(c *gin.Context) {

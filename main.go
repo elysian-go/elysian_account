@@ -2,16 +2,17 @@ package main
 
 import (
 	"github.com/VictorDebray/elysian_account/account"
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/redis"
+	"github.com/gin-contrib/location"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
-	"github.com/gin-contrib/sessions"
-	"github.com/gin-contrib/sessions/redis"
 	"net/http"
 	"os"
 )
 
-func initDB() *gorm.DB{
+func initDB() *gorm.DB {
 	db, err := gorm.Open("postgres",
 		"host="+os.Getenv("DB_HOST")+
 		" port="+os.Getenv("DB_PORT")+
@@ -24,10 +25,20 @@ func initDB() *gorm.DB{
 		panic(err)
 	}
 
-	db.Raw("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\" WITH SCHEMA public;")
 	db.AutoMigrate(&account.Account{})
 
 	return db
+}
+
+func initStore() redis.Store {
+	store, err := redis.NewStore(10, "tcp",
+		os.Getenv("REDIS_HOST")+":"+os.Getenv("REDIS_PORT"),
+		os.Getenv("REDIS_PWD"), []byte("secret"))
+	if err != nil {
+		panic(err)
+	}
+
+	return store
 }
 
 func AuthRequired() gin.HandlerFunc {
@@ -47,25 +58,30 @@ func main() {
 	db := initDB()
 	defer db.Close()
 
+	store := initStore()
 	accountAPI := InitAccountAPI(db)
+	authAPI := InitAuthAPI(db)
 
 	// Creates a gin router with default middleware:
 	// logger and recovery (crash-free) middleware
 	router := gin.Default()
 
-	store, _ := redis.NewStore(10, "tcp",
-		os.Getenv("REDIS_HOST")+":"+os.Getenv("REDIS_PORT"),
-		os.Getenv("REDIS_PWD"), []byte("secret"))
-
 	router.Use(sessions.Sessions("user_session", store))
+	router.Use(location.Default())
 
-	acc := router.Group("/account")
-	acc.POST("/", accountAPI.Create)
+	v1 := router.Group("/api/v1")
+	{
+		auth := v1.Group("/auth")
+		auth.POST("/login", authAPI.Login)
+		//auth.GET("/logout", authAPI.Logout)
 
-	//authAcc := router.Group("/account")
-	//authAcc.Use(AuthRequired())
-	//authAcc.GET("/", accountAPI.FindAll)
+		acc := v1.Group("/account")
+		acc.POST("/", accountAPI.Create)
 
+		authAcc := v1.Group("/account")
+		authAcc.Use(AuthRequired())
+		authAcc.GET("/", accountAPI.FindAll)
+	}
 	err := router.Run(":"+os.Getenv("SVC_PORT"))
 	if err != nil {
 		panic(err)

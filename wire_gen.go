@@ -7,6 +7,7 @@ package main
 
 import (
 	"github.com/VictorDebray/elysian_account/account"
+	"github.com/VictorDebray/elysian_account/auth"
 	"github.com/jinzhu/gorm"
 )
 
@@ -21,4 +22,11 @@ func InitAccountAPI(db *gorm.DB) account.AccountAPI {
 	accountService := account.ProvideAccountService(accountRepository)
 	accountAPI := account.ProvideAccountAPI(accountService)
 	return accountAPI
+}
+
+func InitAuthAPI(db *gorm.DB) auth.AuthAPI {
+	accountRepository := account.ProvideAccountRepostiory(db)
+	authService := auth.ProvideAuthService(accountRepository)
+	authAPI := auth.ProvideAuthAPI(authService)
+	return authAPI
 }
