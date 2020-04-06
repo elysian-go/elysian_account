@@ -39,6 +39,13 @@ func (p *AuthAPI) Login(c *gin.Context) {
 	userPath := location.Get(c).Host+"/api/v1/account"
 	c.Writer.Header().Set("Location", userPath)
 
-	c.JSON(http.StatusNoContent, nil)
-	return
+	c.Status(http.StatusNoContent)
+}
+
+func (p *AuthAPI) Logout(c* gin.Context) {
+	session := sessions.Default(c)
+	session.Clear()
+	session.Save()
+
+	c.JSON(http.StatusOK, gin.H{"message": "Account logout"})
 }

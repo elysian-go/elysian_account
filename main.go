@@ -51,6 +51,7 @@ func AuthRequired() gin.HandlerFunc {
 			})
 			c.Abort()
 		}
+		c.Set("user_id", sessionID)
 	}
 }
 
@@ -73,7 +74,7 @@ func main() {
 	{
 		auth := v1.Group("/auth")
 		auth.POST("/login", authAPI.Login)
-		//auth.GET("/logout", authAPI.Logout)
+		auth.GET("/logout", authAPI.Logout)
 
 		acc := v1.Group("/account")
 		acc.POST("/", accountAPI.Create)
