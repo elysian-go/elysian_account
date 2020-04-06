@@ -25,6 +25,9 @@ func initDB() *gorm.DB {
 		panic(err)
 	}
 
+	//Todo remove this line for production
+	db.LogMode(true)
+	db.SingularTable(true)
 	db.AutoMigrate(&account.Account{})
 
 	return db
@@ -77,11 +80,11 @@ func main() {
 		auth.GET("/logout", authAPI.Logout)
 
 		acc := v1.Group("/account")
-		acc.POST("/", accountAPI.Create)
+		acc.POST("", accountAPI.Create)
 
 		authAcc := v1.Group("/account")
 		authAcc.Use(AuthRequired())
-		authAcc.GET("/", accountAPI.FindAll)
+		authAcc.GET("", accountAPI.FindAll)
 		authAcc.PATCH("", accountAPI.Update)
 	}
 	err := router.Run(":"+os.Getenv("SVC_PORT"))
