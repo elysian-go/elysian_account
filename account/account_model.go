@@ -17,3 +17,8 @@ type AccountModel struct {
 	CreatedAt		time.Time		`json:"created_at,omitempty"`
 	UpdatedAt		time.Time		`json:"updated_at,omitempty"`
 }
+
+type NamesModel struct {
+	FirstName		string			`json:"first_name, omitempty" binding:"required,alpha,max=15"`
+	LastName		string			`json:"last_name, omitempty" binding:"required,alpha,max=15"`
+}

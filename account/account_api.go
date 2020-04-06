@@ -6,7 +6,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"log"
 	"net/http"
-	"strconv"
 )
 
 type AccountAPI struct {
@@ -24,8 +23,12 @@ func (p *AccountAPI) FindAll(c *gin.Context) {
 }
 
 func (p *AccountAPI) FindByID(c *gin.Context) {
-	id, _ :=  strconv.Atoi(c.Param("id"))
-	account := p.AccountService.FindByID(uint(id))
+	id :=  c.Param("id")
+	account, err := p.AccountService.FindByID(id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
 
 	c.JSON(http.StatusOK, gin.H{"account": ToAccountModel(account)})
 }
@@ -62,31 +65,35 @@ func (p *AccountAPI) Create(c *gin.Context) {
 }
 
 func (p *AccountAPI) Update(c *gin.Context) {
-	//var accountModel AccountModel
-	//err := c.BindJSON(&accountModel)
-	//if err != nil {
-	//	log.Fatalln(err)
-	//	c.Status(http.StatusBadRequest)
-	//	return
-	//}
-	//
-	//id, _ :=  strconv.Atoi(c.Param("id"))
-	//account := p.AccountService.FindByID(uint(id))
-	//if account == (Account{}) {
-	//	c.Status(http.StatusBadRequest)
-	//	return
-	//}
-	//
-	//account.Code = accountModel.Code
-	//account.Price = accountModel.Price
-	//p.AccountService.Save(account)
+	var accountNames NamesModel
+	err := c.BindJSON(&accountNames)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
-	c.Status(http.StatusOK)
+	// Getting user id from context
+	value := c.MustGet("user_id")
+	id, ok := value.(string)
+	if !ok {
+		log.Printf("got data of type %T but wanted int", value)
+	}
+	account := Account{Base: Base{ID: id}, FirstName: accountNames.FirstName, LastName:accountNames.LastName }
+	modifiedAccount, err := p.AccountService.Update(account)
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
+		return
+	}
+
+	ac := ToAccountModel(modifiedAccount)
+	ac.Password = ""
+	c.JSON(http.StatusOK, gin.H{"account": ac})
 }
 
 func (p *AccountAPI) Delete(c *gin.Context) {
-	id, _ :=  strconv.Atoi(c.Param("id"))
-	account := p.AccountService.FindByID(uint(id))
+	//id := c.Param("id")
+	account := Account{} //p.AccountService.FindByID(id)
+
 	if account == (Account{}) {
 		c.Status(http.StatusBadRequest)
 		return

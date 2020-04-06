@@ -81,6 +81,7 @@ func main() {
 		authAcc := v1.Group("/account")
 		authAcc.Use(AuthRequired())
 		authAcc.GET("/", accountAPI.FindAll)
+		authAcc.PATCH("", accountAPI.Update)
 	}
 	err := router.Run(":"+os.Getenv("SVC_PORT"))
 	if err != nil {

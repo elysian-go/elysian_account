@@ -1,6 +1,7 @@
 package account
 
 import (
+	"errors"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
@@ -13,23 +14,31 @@ func ProvideAccountRepostiory(DB *gorm.DB) AccountRepository {
 	return AccountRepository{DB: DB}
 }
 
-func (p *AccountRepository) FindAll() []Account {
+func (r *AccountRepository) FindAll() []Account {
 	var accounts []Account
-	p.DB.Find(&accounts)
+	r.DB.Find(&accounts)
 
 	return accounts
 }
 
-func (p *AccountRepository) FindByID(id uint) Account {
+func (r *AccountRepository) FindByID(id string) (Account, error) {
 	var account Account
-	p.DB.First(&account, id)
+	query := *r.DB.Raw("SELECT * FROM account WHERE id = ?", id)
+	err := query.Error
+	if err != nil {
+		return account, errors.New("internal error")
+	}
 
-	return account
+	err = query.Scan(&account).Error
+	if err != nil {
+		return Account{}, errors.New("internal error")
+	}
+	return account, nil
 }
 
-func (p *AccountRepository) FindByEmail(email string) (Account, error) {
+func (r *AccountRepository) FindByEmail(email string) (Account, error) {
 	var account Account
-	err := p.DB.First(&account, "email = ?", email).Error
+	err := r.DB.First(&account, "email = ?", email).Error
 	if err != nil {
 		return account, err
 	}
@@ -37,14 +46,22 @@ func (p *AccountRepository) FindByEmail(email string) (Account, error) {
 	return account, nil
 }
 
-func (p *AccountRepository) Save(account Account) (Account, error) {
-	err := p.DB.Save(&account).Error
+func (r *AccountRepository) Save(account Account) (Account, error) {
+	err := r.DB.Save(&account).Error
 	if err != nil {
 		return Account{}, err
 	}
 	return account, nil
 }
 
-func (p *AccountRepository) Delete(account Account) {
-	p.DB.Delete(&account)
+func (r *AccountRepository) UpdateName(id string, values []string) (Account, error) {
+	err := r.DB.Exec("UPDATE account SET (first_name, last_name) = (?) WHERE id = ?", values, id).Error
+	if err != nil {
+		return Account{}, err
+	}
+	return r.FindByID(id)
+}
+
+func (r *AccountRepository) Delete(account Account) {
+	r.DB.Delete(&account)
 }

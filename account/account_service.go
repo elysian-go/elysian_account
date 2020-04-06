@@ -12,23 +12,35 @@ func ProvideAccountService(p AccountRepository) AccountService {
 	return AccountService{AccountRepository: p}
 }
 
-func (p *AccountService) FindAll() []Account {
-	return p.AccountRepository.FindAll()
+func (s *AccountService) FindAll() []Account {
+	return s.AccountRepository.FindAll()
 }
 
-func (p *AccountService) FindByID(id uint) Account {
-	return p.AccountRepository.FindByID(id)
+func (s *AccountService) FindByID(id string) (Account, error) {
+	account, err := s.AccountRepository.FindByID(id)
+	if err != nil {
+		return account, errors.New("resource not found")
+	}
+	return account, err
 }
 
-func (p *AccountService) Save(account Account) (Account, error) {
-	account, err := p.AccountRepository.Save(account)
+func (s *AccountService) Save(account Account) (Account, error) {
+	account, err := s.AccountRepository.Save(account)
 	if err != nil {
 		return account, errors.New("duplicate entry on email")
 	}
 	return account, nil
 }
 
-func (p *AccountService) Delete(account Account) {
-	p.AccountRepository.Delete(account)
+func (s *AccountService) Update(account Account) (Account, error) {
+	account, err := s.AccountRepository.UpdateName(
+		account.ID, []string{account.FirstName, account.LastName})
+	if err != nil {
+		return account, errors.New("account update failed")
+	}
+	return account, nil
 }
 
+func (s *AccountService) Delete(account Account) {
+	s.AccountRepository.Delete(account)
+}
