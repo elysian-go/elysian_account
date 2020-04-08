@@ -10,7 +10,7 @@ type AccountRepository struct {
 	DB *gorm.DB
 }
 
-func ProvideAccountRepostiory(DB *gorm.DB) AccountRepository {
+func ProvideAccountRepository(DB *gorm.DB) AccountRepository {
 	return AccountRepository{DB: DB}
 }
 

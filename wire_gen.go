@@ -18,14 +18,14 @@ import (
 // Injectors from container.go:
 
 func InitAccountAPI(db *gorm.DB) account.AccountAPI {
-	accountRepository := account.ProvideAccountRepostiory(db)
+	accountRepository := account.ProvideAccountRepository(db)
 	accountService := account.ProvideAccountService(accountRepository)
 	accountAPI := account.ProvideAccountAPI(accountService)
 	return accountAPI
 }
 
 func InitAuthAPI(db *gorm.DB) auth.AuthAPI {
-	accountRepository := account.ProvideAccountRepostiory(db)
+	accountRepository := account.ProvideAccountRepository(db)
 	authService := auth.ProvideAuthService(accountRepository)
 	authAPI := auth.ProvideAuthAPI(authService)
 	return authAPI

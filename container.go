@@ -11,10 +11,10 @@ import (
 
 func InitAccountAPI(db *gorm.DB) account.AccountAPI {
 	panic(wire.Build(
-		account.ProvideAccountRepostiory, account.ProvideAccountService, account.ProvideAccountAPI))
+		account.ProvideAccountRepository, account.ProvideAccountService, account.ProvideAccountAPI))
 }
 
 func InitAuthAPI(db *gorm.DB) auth.AuthAPI {
 	panic(wire.Build(
-		account.ProvideAccountRepostiory, auth.ProvideAuthService, auth.ProvideAuthAPI))
+		account.ProvideAccountRepository, auth.ProvideAuthService, auth.ProvideAuthAPI))
 }
