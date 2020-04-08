@@ -16,15 +16,15 @@ func ProvideAccountAPI(p AccountService) AccountAPI {
 	return AccountAPI{AccountService: p}
 }
 
-func (p *AccountAPI) FindAll(c *gin.Context) {
-	accounts := p.AccountService.FindAll()
+func (a *AccountAPI) FindAll(c *gin.Context) {
+	accounts := a.AccountService.FindAll()
 
 	c.JSON(http.StatusOK, gin.H{"accounts": ToAccountModels(accounts)})
 }
 
-func (p *AccountAPI) FindByID(c *gin.Context) {
+func (a *AccountAPI) FindByID(c *gin.Context) {
 	id :=  c.Param("id")
-	account, err := p.AccountService.FindByID(id)
+	account, err := a.AccountService.FindByID(id)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
@@ -33,7 +33,7 @@ func (p *AccountAPI) FindByID(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"account": ToAccountModel(account)})
 }
 
-func (p *AccountAPI) Create(c *gin.Context) {
+func (a *AccountAPI) Create(c *gin.Context) {
 	var accountModel Model
 	err := c.BindJSON(&accountModel)
 	if err != nil {
@@ -49,7 +49,7 @@ func (p *AccountAPI) Create(c *gin.Context) {
 	}
 	accountModel.Password = string(byteHash)
 
-	account, err := p.AccountService.Save(ToAccount(accountModel))
+	account, err := a.AccountService.Save(ToAccount(accountModel))
 	if err != nil {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 		return
@@ -64,7 +64,7 @@ func (p *AccountAPI) Create(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"account": ac})
 }
 
-func (p *AccountAPI) Update(c *gin.Context) {
+func (a *AccountAPI) Update(c *gin.Context) {
 	var accountNames NamesModel
 	err := c.BindJSON(&accountNames)
 	if err != nil {
@@ -79,7 +79,7 @@ func (p *AccountAPI) Update(c *gin.Context) {
 		log.Printf("got data of type %T but wanted int", value)
 	}
 	account := Account{Base: Base{ID: id}, FirstName: accountNames.FirstName, LastName:accountNames.LastName }
-	modifiedAccount, err := p.AccountService.Update(account)
+	modifiedAccount, err := a.AccountService.Update(account)
 	if err != nil {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 		return
@@ -90,16 +90,16 @@ func (p *AccountAPI) Update(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"account": ac})
 }
 
-func (p *AccountAPI) Delete(c *gin.Context) {
+func (a *AccountAPI) Delete(c *gin.Context) {
 	//id := c.Param("id")
-	account := Account{} //p.AccountService.FindByID(id)
+	account := Account{} //a.AccountService.FindByID(id)
 
 	if account == (Account{}) {
 		c.Status(http.StatusBadRequest)
 		return
 	}
 
-	p.AccountService.Delete(account)
+	a.AccountService.Delete(account)
 
 	c.Status(http.StatusOK)
 }
