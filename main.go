@@ -20,7 +20,7 @@ func initDB() *gorm.DB {
 		" dbname="+os.Getenv("DB_NAME")+
 		" password="+os.Getenv("DB_PWD")+
 		" sslmode="+os.Getenv("DB_SSLMODE")+
-		" connect_timeout=3")
+		" connect_timeout="+os.Getenv("DB_TIMEOUT"))
 	if err != nil {
 		panic(err)
 	}
