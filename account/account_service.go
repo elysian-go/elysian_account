@@ -1,7 +1,8 @@
 package account
 
 import (
-	"errors"
+	"github.com/pkg/errors"
+	"log"
 )
 
 type AccountService struct {
@@ -19,7 +20,7 @@ func (s *AccountService) FindAll() []Account {
 func (s *AccountService) FindByID(id string) (Account, error) {
 	account, err := s.AccountRepository.FindByID(id)
 	if err != nil {
-		return account, errors.New("resource not found")
+		return Account{}, errors.Wrap(err, "error while finding account")
 	}
 	return account, err
 }
@@ -27,7 +28,7 @@ func (s *AccountService) FindByID(id string) (Account, error) {
 func (s *AccountService) Save(account Account) (Account, error) {
 	account, err := s.AccountRepository.Save(account)
 	if err != nil {
-		return account, errors.New("duplicate entry on email")
+		return Account{}, errors.Wrap(err, "error while saving account")
 	}
 	return account, nil
 }
@@ -36,7 +37,8 @@ func (s *AccountService) Update(account Account) (Account, error) {
 	account, err := s.AccountRepository.UpdateName(
 		account.ID, []string{account.FirstName, account.LastName})
 	if err != nil {
-		return account, errors.New("account update failed")
+		log.Println(err)
+		return Account{}, errors.Wrap(err,"error while updating account")
 	}
 	return account, nil
 }
