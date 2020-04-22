@@ -22,13 +22,13 @@ func (r *AccountRepository) FindAll() []Account {
 }
 
 func (r *AccountRepository) FindByID(id string) (Account, error) {
-	var account Account
 	query := *r.DB.Raw("SELECT * FROM account WHERE id = ?", id)
 	err := query.Error
 	if err != nil {
-		return account, errors.Wrap(err, "find by id failed")
+		return Account{}, errors.Wrap(err, "find by id failed")
 	}
 
+	var account Account
 	err = query.Scan(&account).Error
 	if err != nil {
 		return Account{}, errors.Wrap(err, "scan query to account failed")
@@ -40,9 +40,8 @@ func (r *AccountRepository) FindByEmail(email string) (Account, error) {
 	var account Account
 	err := r.DB.First(&account, "email = ?", email).Error
 	if err != nil {
-		return account, errors.Wrap(err, "find by email failed")
+		return Account{}, errors.Wrap(err, "find by email failed")
 	}
-
 	return account, nil
 }
 

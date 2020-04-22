@@ -22,7 +22,7 @@ func (s *AccountService) FindByID(id string) (Account, error) {
 	if err != nil {
 		return Account{}, errors.Wrap(err, "error while finding account")
 	}
-	return account, err
+	return account, nil
 }
 
 func (s *AccountService) Save(account Account) (Account, error) {
