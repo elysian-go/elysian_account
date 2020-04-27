@@ -12,17 +12,17 @@ services:
       - $PWD/dev/data/account_db:/var/lib/postgresql/data
   account-svc:
     build:
-      context: .
+      context: elysian_account
       dockerfile: dev.Dockerfile
     image: elysian_account
     ports:
       - 3000:8080
     links:
       - account-db
-      - redis
+      - sentinel
     env_file: elysian_account/.env
     volumes:
       - $PWD/elysian_account:/app
     depends_on:
       - account-db
-      - redis
+      - sentinel

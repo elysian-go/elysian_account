@@ -2,9 +2,9 @@ package main
 
 import (
 	"github.com/VictorDebray/elysian_account/account"
-	"github.com/gin-contrib/sessions"
-	"github.com/gin-contrib/sessions/redis"
+	"github.com/elysian-go/redis-sentinel-store/redisstore"
 	"github.com/gin-contrib/location"
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
@@ -15,12 +15,12 @@ import (
 func initDB() *gorm.DB {
 	db, err := gorm.Open("postgres",
 		"host="+os.Getenv("DB_HOST")+
-		" port="+os.Getenv("DB_PORT")+
-		" user="+os.Getenv("DB_USER")+
-		" dbname="+os.Getenv("DB_NAME")+
-		" password="+os.Getenv("DB_PWD")+
-		" sslmode="+os.Getenv("DB_SSLMODE")+
-		" connect_timeout="+os.Getenv("DB_TIMEOUT"))
+			" port="+os.Getenv("DB_PORT")+
+			" user="+os.Getenv("DB_USER")+
+			" dbname="+os.Getenv("DB_NAME")+
+			" password="+os.Getenv("DB_PWD")+
+			" sslmode="+os.Getenv("DB_SSLMODE")+
+			" connect_timeout="+os.Getenv("DB_TIMEOUT"))
 	if err != nil {
 		panic(err)
 	}
@@ -31,17 +31,6 @@ func initDB() *gorm.DB {
 	db.AutoMigrate(&account.Account{})
 
 	return db
-}
-
-func initStore() redis.Store {
-	store, err := redis.NewStore(10, "tcp",
-		os.Getenv("REDIS_HOST")+":"+os.Getenv("REDIS_PORT"),
-		os.Getenv("REDIS_PWD"), []byte("secret"))
-	if err != nil {
-		panic(err)
-	}
-
-	return store
 }
 
 func AuthRequired() gin.HandlerFunc {
@@ -62,7 +51,7 @@ func main() {
 	db := initDB()
 	defer db.Close()
 
-	store := initStore()
+	store := redisstore.InitStore()
 	accountAPI := InitAccountAPI(db)
 	authAPI := InitAuthAPI(db)
 
@@ -87,7 +76,7 @@ func main() {
 		authAcc.GET("", accountAPI.FindAll)
 		authAcc.PATCH("", accountAPI.Update)
 	}
-	err := router.Run(":"+os.Getenv("SVC_PORT"))
+	err := router.Run(":" + os.Getenv("SVC_PORT"))
 	if err != nil {
 		panic(err)
 	}
