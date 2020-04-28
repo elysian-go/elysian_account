@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: account-svc
+  namespace: elysian-dev
+  labels:
+    app.kubernetes.io/name: account-svc
+    app.kubernetes.io/version: "0.1"
+    app.kubernetes.io/part-of: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: account-svc
+      app.kubernetes.io/version: "0.1"
+      app.kubernetes.io/part-of: backend
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: account-svc
+        app.kubernetes.io/version: "0.1"
+        app.kubernetes.io/part-of: backend
+    spec:
+      nodeSelector:
+        cloud.google.com/gke-nodepool: web-pool
+      containers:
+        - name: account-svc
+          image: gcr.io/GCP_PROJ/elysian/account-svc
+          imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: 100m
+              memory: 100Mi
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - secretRef:
+                name: account-svc
+          env:
+            - name: GET_HOSTS_FROM
+              value: dns
+            - name: SVC_PORT
+              value: "8080"
+            - name: SVC_DOMAIN
+              valueFrom:
+                configMapKeyRef:
+                  name: account-svc
+                  key: svc_host
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: account-svc
+                  key: db_host
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: account-svc
+                  key: db_port
+            - name: DB_SSLMODE
+              valueFrom:
+                configMapKeyRef:
+                  name: account-svc
+                  key: db_sslmode
+            - name: DB_TIMEOUT
+              valueFrom:
+                configMapKeyRef:
+                  name: account-svc
+                  key: db_timeout
+            - name: REDIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: account-svc
+                  key: redis_host
+            - name: REDIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: account-svc
+                  key: redis_host
