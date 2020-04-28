@@ -1,9 +1,9 @@
 *
 
 !account
+!auth
 !container.go
 !wire_gen.go
 !main.go
 !go.mod
 !go.sum
-!wait-for-it.sh
